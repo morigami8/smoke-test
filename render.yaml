@@ -1,11 +1,11 @@
 services:
-  - type: web
-    name: smoke-test
+  - name: tcp-echo-server
+    type: web
     env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheckPath: / # Render requires a health check path even for TCP
     envVars:
       - key: PORT
         value: '9000'
-    plan: free
-    dockerfilePath: ./Dockerfile
-    healthCheckPath: /
-    autoDeploy: true
