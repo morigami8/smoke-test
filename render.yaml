@@ -8,4 +8,4 @@ services:
     healthCheckPath: / # Render requires a health check path even for TCP
     envVars:
       - key: PORT
-        value: '9000'
+        value: '10000'
