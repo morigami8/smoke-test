@@ -27,11 +27,31 @@ func main() {
 
 func handle(conn net.Conn) {
 	defer conn.Close()
+
 	fmt.Printf("Handling connection from %s\n", conn.RemoteAddr())
 
-	if _, err := io.Copy(conn, conn); err != nil {
-		fmt.Printf("Error during copy: %v\n", err)
-	} else {
-		fmt.Printf("Successfully echoed data to %s\n", conn.RemoteAddr())
+	// Create a buffer for reading data
+	buffer := make([]byte, 1024)
+
+	for {
+		// Read from the connection
+		n, err := conn.Read(buffer)
+		if err == io.EOF {
+			fmt.Printf("Connection closed by client %s\n", conn.RemoteAddr())
+			break
+		}
+		if err != nil {
+			fmt.Printf("Error reading from client %s: %v\n", conn.RemoteAddr(), err)
+			break
+		}
+
+		// Echo data back to the client
+		_, writeErr := conn.Write(buffer[:n])
+		if writeErr != nil {
+			fmt.Printf("Error writing to client %s: %v\n", conn.RemoteAddr(), writeErr)
+			break
+		}
 	}
+
+	fmt.Printf("Successfully echoed data to %s\n", conn.RemoteAddr())
 }
