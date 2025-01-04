@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: smoke-test
+    env: docker
+    envVars:
+      - key: PORT
+        value: '9000'
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
