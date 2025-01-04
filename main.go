@@ -8,12 +8,16 @@ import (
 )
 
 func main() {
-	ln, err := net.Listen("tcp", ":10000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "10000"
+	}
+	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		fmt.Println("listen: ", err.Error())
+		fmt.Printf("Error starting server on port %s: %v\n", port, err)
 		os.Exit(1)
 	}
-	fmt.Println("listening on port 10000")
+	fmt.Printf("Listening on port %s\n", port)
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
