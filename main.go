@@ -27,8 +27,11 @@ func main() {
 
 func handle(conn net.Conn) {
 	defer conn.Close()
+	fmt.Printf("Handling connection from %s\n", conn.RemoteAddr())
 
 	if _, err := io.Copy(conn, conn); err != nil {
-		fmt.Println("copy: ", err.Error())
+		fmt.Printf("Error during copy: %v\n", err)
+	} else {
+		fmt.Printf("Successfully echoed data to %s\n", conn.RemoteAddr())
 	}
 }
