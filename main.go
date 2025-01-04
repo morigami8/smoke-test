@@ -3,13 +3,22 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net"
+	"os"
 	"sync"
 )
 
 func main() {
 
-	listener, err := net.Listen("tcp", "0.0.0.0:9000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9000" // Default to 9000 if not set
+	}
+	listener, err := net.Listen("tcp", "0.0.0.0:"+port)
+	if err != nil {
+		log.Fatalf("Error starting server: %v", err)
+	}
 
 	if err != nil {
 		fmt.Printf("error connecting to listener: %v", err)
