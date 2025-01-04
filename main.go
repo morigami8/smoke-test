@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	listener, err := net.Listen("tcp", ":9000")
+	listener, err := net.Listen("tcp", "0.0.0.0:9000")
 
 	if err != nil {
 		fmt.Printf("error connecting to listener: %v", err)
