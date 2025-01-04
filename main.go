@@ -3,71 +3,32 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"net"
-	"net/http"
 	"os"
-	"sync"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "9000" // Default to 9000 if not set
-	}
-
-	// Start a separate HTTP server for health checks
-	go func() {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintf(w, "OK")
-		})
-		http.ListenAndServe(":8080", nil)
-	}()
-
-	listener, err := net.Listen("tcp", "0.0.0.0:"+port)
+	ln, err := net.Listen("tcp", ":10000")
 	if err != nil {
-		log.Fatalf("Error starting server: %v", err)
+		fmt.Println("listen: ", err.Error())
+		os.Exit(1)
 	}
-	defer listener.Close()
-
-	fmt.Println("TCP connection listening on port", port)
-
-	var wg sync.WaitGroup
-
+	fmt.Println("listening on port 10000")
 	for {
-		conn, err := listener.Accept()
+		conn, err := ln.Accept()
 		if err != nil {
-			fmt.Printf("error establishing connection: %v\n", err)
-			continue
+			fmt.Println("accept: ", err.Error())
+			os.Exit(1)
 		}
-		wg.Add(1)
-		go handleConnection(conn, &wg)
+		fmt.Println("connection from ", conn.RemoteAddr())
+		go handle(conn)
 	}
-
-	wg.Wait()
 }
 
-func handleConnection(conn net.Conn, wg *sync.WaitGroup) {
+func handle(conn net.Conn) {
 	defer conn.Close()
-	defer wg.Done()
 
-	buff := make([]byte, 1024)
-
-	for {
-		n, err := conn.Read(buff)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			fmt.Printf("error reading from client: %v\n", err)
-			return
-		}
-
-		_, err = conn.Write(buff[:n])
-		if err != nil {
-			fmt.Printf("error writing to client: %v\n", err)
-			return
-		}
+	if _, err := io.Copy(conn, conn); err != nil {
+		fmt.Println("copy: ", err.Error())
 	}
 }
